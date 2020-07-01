@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.os.Parcelable
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
+import androidx.recyclerview.widget.DefaultItemAnimator
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
@@ -16,10 +17,20 @@ import com.climaxsky.test.data.ImageEntity
 import com.climaxsky.test.other.AsynTaskListener
 import com.climaxsky.test.utils.InternalStorageProvider
 import com.climaxsky.test.utils.PermisstionHelper
+import kotlinx.android.synthetic.main.image_fragment.*
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import org.parceler.Parcels
 
-class ImageFragment: BaseFragment() {
+
+class ImageFragment : BaseFragment() {
     private lateinit var mList: ArrayList<ImageEntity>
+    private val mAdapter by lazy { ImageAdapter() }
+    val uiScope = CoroutineScope(Dispatchers.Main)
+    val bgScope = CoroutineScope(Dispatchers.IO)
+    val uiDispatcher: CoroutineDispatcher = Dispatchers.Main
+    val bgDispatcher: CoroutineDispatcher = Dispatchers.IO
 
     override fun onExtras(bundle: Bundle?) {
         super.onExtras(bundle)
@@ -29,20 +40,32 @@ class ImageFragment: BaseFragment() {
         }
     }
 
-    override fun getLayoutResId(): Int =  R.layout.image_fragment
+    override fun getLayoutResId(): Int = R.layout.image_fragment
 
     override fun initView() {
+
+        mAdapter.run { }
+
+        recyclerView.apply {
+            setHasFixedSize(true)
+            itemAnimator = DefaultItemAnimator()
+            setItemViewCacheSize(20)
+            adapter = mAdapter
+        }
+
         checkPermission()
+
     }
 
     override fun initData() {
     }
 
     override fun startObserve() {
+
     }
 
     private fun getUrlImage() {
-        if(mList.size > 0){
+        if (mList.size > 0) {
             getImageFromUrl(mList.get(0).avatar, object : AsynTaskListener {
                 override fun callback(url: String?) {
                     mList.removeAt(0)
@@ -53,7 +76,7 @@ class ImageFragment: BaseFragment() {
     }
 
     private fun getImageFromUrl(url: String?, listener: AsynTaskListener){
-        val fileName = "image-" + System.currentTimeMillis()
+        val fileName = "image" + System.currentTimeMillis()+".jpg"
 
         Glide.with(requireContext())
             .asBitmap()
@@ -66,9 +89,10 @@ class ImageFragment: BaseFragment() {
                     // Save image
                     InternalStorageProvider(requireContext()).saveBitmap(resource, fileName)
                     // Recursion
-                    listener.callback(url)
+                    listener.callback(fileName)
                 }
             })
+        mAdapter.addData(fileName)
     }
 
     private fun checkPermission() {

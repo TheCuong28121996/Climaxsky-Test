@@ -1,15 +1,11 @@
 package com.climaxsky.test.utils
 
 import android.content.Context
-import android.content.Context.MODE_PRIVATE
-import android.content.ContextWrapper
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Environment
 import android.util.Log
-import android.widget.Toast
 import java.io.*
-import java.lang.Exception
 
 
 class InternalStorageProvider(var context: Context) {
@@ -34,17 +30,22 @@ class InternalStorageProvider(var context: Context) {
 
     fun loadBitmap(picName: String): Bitmap? {
         var bitmap: Bitmap? = null
-        var fileInputStream: FileInputStream? = null
-        try {
-            fileInputStream = context.openFileInput(picName)
-            bitmap = BitmapFactory.decodeStream(fileInputStream)
-        } catch (e: FileNotFoundException) {
-            e.printStackTrace()
-        } catch (e: IOException) {
-            e.printStackTrace()
-        } finally {
-            fileInputStream?.close()
+//        var fileInputStream: FileInputStream? = null
+        val imgFile = File("/storage/emulated/0/"+picName)
+        if(imgFile.exists()){
+             bitmap = BitmapFactory.decodeFile(imgFile.absolutePath)
         }
+
+//        try {
+//            fileInputStream = context.openFileInput("/storage/emulated/0/"+picName)
+//            bitmap = BitmapFactory.decodeStream(fileInputStream)
+//        } catch (e: FileNotFoundException) {
+//            e.printStackTrace()
+//        } catch (e: IOException) {
+//            e.printStackTrace()
+//        } finally {
+//            fileInputStream?.close()
+//        }
 
         return bitmap
     }

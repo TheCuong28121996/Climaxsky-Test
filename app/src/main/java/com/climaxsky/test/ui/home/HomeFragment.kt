@@ -1,23 +1,15 @@
 package com.climaxsky.test.ui.home
 
-import android.Manifest
-import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.os.Handler
-import androidx.core.app.ActivityCompat
 import androidx.core.os.bundleOf
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.bumptech.glide.request.target.SimpleTarget
-import com.bumptech.glide.request.transition.Transition
 import com.climaxsky.test.R
 import com.climaxsky.test.base.BaseFragment
 import com.climaxsky.test.data.ImageEntity
-import com.climaxsky.test.other.AsynTaskListener
 import com.climaxsky.test.other.OnLoadMoreListener
 import com.climaxsky.test.other.ViewHolderListener
 import com.climaxsky.test.utils.*

@@ -1,7 +1,6 @@
-package com.climaxsky.test.ui
+package com.climaxsky.test.ui.home
 
 import android.content.Context
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.climaxsky.test.base.BaseViewModel
 import com.climaxsky.test.data.ImageEntity
@@ -9,7 +8,8 @@ import com.climaxsky.test.utils.AssetJson
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
-class ImageViewModel: BaseViewModel() {
+
+class HomeViewModel: BaseViewModel() {
 
     private val repoImage = MutableLiveData<List<ImageEntity>>()
 
@@ -17,7 +17,6 @@ class ImageViewModel: BaseViewModel() {
         get() = repoImage
 
     fun getImage(context: Context, page: Int) {
-        Log.d("TheCuong","page "+ page)
         val from: Int = 0 + (page * 20)
         val to: Int = 20 + (page * 20)
 

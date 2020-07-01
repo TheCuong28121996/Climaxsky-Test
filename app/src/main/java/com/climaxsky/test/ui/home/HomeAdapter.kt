@@ -1,4 +1,4 @@
-package com.climaxsky.test.ui
+package com.climaxsky.test.ui.home
 
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -7,7 +7,7 @@ import com.climaxsky.test.base.BaseAdapter
 import com.climaxsky.test.base.BaseHolder
 import com.climaxsky.test.data.ImageEntity
 
-class ImageAdapter: BaseAdapter<ImageEntity>(diffUtil){
+class HomeAdapter: BaseAdapter<ImageEntity>(diffUtil){
 
     companion object{
         val diffUtil = object : DiffUtil.ItemCallback<ImageEntity>(){
@@ -22,8 +22,8 @@ class ImageAdapter: BaseAdapter<ImageEntity>(diffUtil){
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseHolder<ImageEntity> {
-        return ImageViewHodel(
-            createView(R.layout.item_adapter_image, parent), getListener()
+        return HomeViewHodel(
+            createView(R.layout.item_adapter_home, parent), getListener()
         )
     }
 }

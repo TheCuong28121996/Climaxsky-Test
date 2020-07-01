@@ -1,14 +1,13 @@
-package com.climaxsky.test.ui
+package com.climaxsky.test.ui.home
 
-import android.util.Log
 import android.view.View
 import com.bumptech.glide.Glide
 import com.climaxsky.test.base.BaseHolder
 import com.climaxsky.test.data.ImageEntity
 import com.climaxsky.test.other.ViewHolderListener
-import kotlinx.android.synthetic.main.item_adapter_image.view.*
+import kotlinx.android.synthetic.main.item_adapter_home.view.*
 
-class ImageViewHodel(view: View, listener: ViewHolderListener<ImageEntity>): BaseHolder<ImageEntity>(view, listener) {
+class HomeViewHodel(view: View, listener: ViewHolderListener<ImageEntity>): BaseHolder<ImageEntity>(view, listener) {
 
     override fun bindData(data: ImageEntity?) {
         if (data != null) {

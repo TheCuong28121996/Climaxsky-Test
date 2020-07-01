@@ -85,8 +85,8 @@ abstract class BaseAdapter<T>(diffUtil: DiffUtil.ItemCallback<T>) :
         notifyDataSetChanged()
     }
 
-    open fun getListCount(): Int? {
-        return if (this.dataSource.size > 0) this.dataSource.size else null
+    open fun getListItem(): Collection<T> {
+        return dataSource
     }
 
     fun createView(resource: Int, parent: ViewGroup, attachToRoot: Boolean = false): View {

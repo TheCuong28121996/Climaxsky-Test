@@ -1,36 +1,45 @@
-package com.climaxsky.test.ui
+package com.climaxsky.test.ui.home
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.os.Handler
+import androidx.core.app.ActivityCompat
+import androidx.core.os.bundleOf
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.SimpleTarget
+import com.bumptech.glide.request.transition.Transition
 import com.climaxsky.test.R
 import com.climaxsky.test.base.BaseFragment
-import com.climaxsky.test.other.OnLoadMoreListener
-import com.climaxsky.test.utils.RecyclerViewLoadMoreScroll
-import kotlinx.android.synthetic.main.image_fragment.*
-import android.os.Handler
 import com.climaxsky.test.data.ImageEntity
+import com.climaxsky.test.other.AsynTaskListener
+import com.climaxsky.test.other.OnLoadMoreListener
 import com.climaxsky.test.other.ViewHolderListener
-import com.climaxsky.test.utils.Event
+import com.climaxsky.test.utils.*
+import kotlinx.android.synthetic.main.home_fragment.*
+import org.parceler.Parcels
 
 
-class ImageFragment : BaseFragment() {
+class HomeFragment : BaseFragment() {
 
-    private lateinit var viewModel: ImageViewModel
-    private val mAdapter by lazy { ImageAdapter() }
     private var page: Int = 0
+    private lateinit var viewModel: HomeViewModel
+    private val mAdapter by lazy { HomeAdapter() }
     private lateinit var scrollListener: RecyclerViewLoadMoreScroll
     private lateinit var mLayoutManager: RecyclerView.LayoutManager
 
-    override fun getLayoutResId(): Int = R.layout.image_fragment
+    override fun getLayoutResId(): Int = R.layout.home_fragment
 
     override fun initView() {
 
         if (!this::viewModel.isInitialized) {
-            viewModel = ViewModelProviders.of(this@ImageFragment)
-                .get(ImageViewModel::class.java)
+            viewModel = ViewModelProviders.of(this@HomeFragment)
+                .get(HomeViewModel::class.java)
             setObserveLive(viewModel)
         }
 
@@ -40,7 +49,7 @@ class ImageFragment : BaseFragment() {
 
         mLayoutManager = LinearLayoutManager(requireContext())
 
-        recyclerview.apply {
+        recyclerView.apply {
             setHasFixedSize(true)
             itemAnimator = DefaultItemAnimator()
             setItemViewCacheSize(20)
@@ -51,7 +60,8 @@ class ImageFragment : BaseFragment() {
         setRVScrollListener()
 
         floating_action_button.setOnClickListener {
-
+            val bundle = bundleOf("data" to  Parcels.wrap(mAdapter.getListItem()))
+            startFragment(R.id.action_mainFragment_to_imageFragment, bundle)
         }
     }
 
@@ -61,7 +71,7 @@ class ImageFragment : BaseFragment() {
 
     override fun startObserve() {
         viewModel.apply {
-            _reporepoImage.observe(this@ImageFragment, Observer {
+            _reporepoImage.observe(this@HomeFragment, Observer {
                 if (it != null) {
                     mAdapter.addData(it)
                 }
@@ -77,7 +87,7 @@ class ImageFragment : BaseFragment() {
                 LoadMoreData()
             }
         })
-        recyclerview.addOnScrollListener(scrollListener)
+        recyclerView.addOnScrollListener(scrollListener)
     }
 
     private fun LoadMoreData() {
@@ -88,9 +98,10 @@ class ImageFragment : BaseFragment() {
         }, 1000)
     }
 
-    private val imageListener = object: ViewHolderListener<ImageEntity>{
+    private val imageListener = object : ViewHolderListener<ImageEntity> {
         override fun itemClicked(data: ImageEntity, positon: Int) {
             viewModel.eventMessage.value = Event(data.name!!)
         }
     }
 }
+

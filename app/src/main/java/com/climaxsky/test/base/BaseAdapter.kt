@@ -22,14 +22,8 @@ abstract class BaseAdapter<T>(diffUtil: DiffUtil.ItemCallback<T>) :
         return this.listener
     }
 
-    open fun addHeader(data: T) {
-        this.dataSource.add(0, data)
-        notifyDataSetChanged()
-    }
-
     open fun addData(data: Collection<T>) {
         val size = data.size
-
         if (size > 0) {
             val currentTotal = this.dataSource.size
             this.dataSource.addAll(data)
@@ -39,7 +33,7 @@ abstract class BaseAdapter<T>(diffUtil: DiffUtil.ItemCallback<T>) :
 
     open fun addData(data: T) {
         this.dataSource.add(data)
-        notifyItemChanged(this.dataSource.size)
+        notifyItemInserted(this.dataSource.size)
     }
 
     open fun addData(data: T, position: Int) {
@@ -66,23 +60,11 @@ abstract class BaseAdapter<T>(diffUtil: DiffUtil.ItemCallback<T>) :
         return null
     }
 
-    open fun removeItem(data: T) {
-        val index = this.dataSource.indexOf(data)
-        if (index == -1) return
-        this.dataSource.remove(data)
-        notifyItemRemoved(index)
-    }
-
     open fun removeItem(position: Int) {
         if (0 < position && position < this.dataSource.size) {
             this.dataSource.removeAt(position)
             notifyItemRemoved(position)
         }
-    }
-
-    open fun removeItem(data: Collection<T>) {
-        this.dataSource.clear()
-        notifyDataSetChanged()
     }
 
     open fun getListItem(): Collection<T> {

@@ -17,7 +17,6 @@ class ImageAdapter: BaseAdapter<String>(diffUtil) {
             override fun areContentsTheSame(oldItem: String, newItem: String): Boolean {
                 return oldItem == newItem
             }
-
         }
     }
 

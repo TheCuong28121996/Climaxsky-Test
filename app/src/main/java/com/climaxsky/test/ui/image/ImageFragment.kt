@@ -4,7 +4,10 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.os.Parcelable
+import android.util.Log
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.DefaultItemAnimator
@@ -18,19 +21,15 @@ import com.climaxsky.test.other.AsynTaskListener
 import com.climaxsky.test.utils.InternalStorageProvider
 import com.climaxsky.test.utils.PermisstionHelper
 import kotlinx.android.synthetic.main.image_fragment.*
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers.IO
 import org.parceler.Parcels
 
 
 class ImageFragment : BaseFragment() {
+
     private lateinit var mList: ArrayList<ImageEntity>
     private val mAdapter by lazy { ImageAdapter() }
-    val uiScope = CoroutineScope(Dispatchers.Main)
-    val bgScope = CoroutineScope(Dispatchers.IO)
-    val uiDispatcher: CoroutineDispatcher = Dispatchers.Main
-    val bgDispatcher: CoroutineDispatcher = Dispatchers.IO
 
     override fun onExtras(bundle: Bundle?) {
         super.onExtras(bundle)
@@ -54,29 +53,81 @@ class ImageFragment : BaseFragment() {
         }
 
         checkPermission()
-
     }
 
     override fun initData() {
     }
 
     override fun startObserve() {
-
     }
 
-    private fun getUrlImage() {
-        if (mList.size > 0) {
-            getImageFromUrl(mList.get(0).avatar, object : AsynTaskListener {
-                override fun callback(url: String?) {
-                    mList.removeAt(0)
-                    getUrlImage()
+    // Option 2 using Recursion
+//    private fun getUrlImage() {
+//        if (mList.size > 0) {
+//            getImageFromUrl(mList.get(0).avatar, object : AsynTaskListener {
+//                override fun callback(url: String?) {
+//                    mList.removeAt(0)
+//                    getUrlImage()
+//                    val handler = Handler(Looper.getMainLooper())
+//                    handler.post {
+//                        mAdapter.addData(url!!)
+//                    }
+//                }
+//            })
+//        }
+//    }
+//
+//    private fun getImageFromUrl(url: String?, listener: AsynTaskListener){
+//        val fileName = "image" + System.currentTimeMillis()+".jpg"
+//
+//        Glide.with(requireContext())
+//            .asBitmap()
+//            .load(url)
+//            .into(object : SimpleTarget<Bitmap?>() {
+//                override fun onResourceReady(
+//                    resource: Bitmap,
+//                    transition: Transition<in Bitmap?>?
+//                ) {
+//                    // Save image
+//                    InternalStorageProvider(requireContext()).saveBitmap(resource, fileName)
+//                    // Recursion
+//                    listener.callback(fileName)
+//                }
+//            })
+//        mAdapter.addData(fileName)
+//    }
+
+
+//  Option 1 using CoroutineScope
+    private suspend fun getUrlImage() {
+        withContext(IO) {
+            for (item in mList) {
+                var bitmap: Bitmap? = null
+
+                val getBitmap = launch {
+                    bitmap = downLoadImage(item.avatar)
+                    Log.d("ImageFragment", "getBitmap ")
                 }
-            })
+                getBitmap.join()
+
+                var pathImage: String? = ""
+                val saveImage = async {
+                    if (bitmap != null) {
+                        pathImage = saveImage(bitmap!!)
+                        Log.d("ImageFragment", "saveImage " + pathImage)
+                    }
+                }.await()
+
+                withContext(Dispatchers.Main){
+                    Log.d("ImageFragment", "udateUi " + pathImage)
+                    mAdapter.addData(pathImage!!)
+                }
+            }
         }
     }
 
-    private fun getImageFromUrl(url: String?, listener: AsynTaskListener){
-        val fileName = "image" + System.currentTimeMillis()+".jpg"
+    private suspend fun downLoadImage(url: String?): Bitmap? {
+        var bitmap: Bitmap? = null
 
         Glide.with(requireContext())
             .asBitmap()
@@ -86,13 +137,17 @@ class ImageFragment : BaseFragment() {
                     resource: Bitmap,
                     transition: Transition<in Bitmap?>?
                 ) {
-                    // Save image
-                    InternalStorageProvider(requireContext()).saveBitmap(resource, fileName)
-                    // Recursion
-                    listener.callback(fileName)
+                    bitmap = resource
                 }
             })
-        mAdapter.addData(fileName)
+        delay(1000)
+        return bitmap
+    }
+
+    private fun saveImage(bitmap: Bitmap): String {
+        val fileName = "image" + System.currentTimeMillis() + ".jpg"
+        InternalStorageProvider(requireContext()).saveBitmap(bitmap, fileName)
+        return fileName
     }
 
     private fun checkPermission() {
@@ -108,7 +163,9 @@ class ImageFragment : BaseFragment() {
                 PERMISSIONS_REQUEST
             )
         } else {
-            getUrlImage()
+            CoroutineScope(IO).launch {
+                getUrlImage()
+            }
         }
     }
 
@@ -129,7 +186,9 @@ class ImageFragment : BaseFragment() {
                 }
             }
             if (allgranted) {
-                getUrlImage()
+                CoroutineScope(IO).launch {
+                    getUrlImage()
+                }
             }
         } else {
             Toast.makeText(requireContext(), "Permisstion not granted", Toast.LENGTH_LONG).show()

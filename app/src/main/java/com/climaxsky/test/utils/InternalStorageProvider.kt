@@ -30,23 +30,11 @@ class InternalStorageProvider(var context: Context) {
 
     fun loadBitmap(picName: String): Bitmap? {
         var bitmap: Bitmap? = null
-//        var fileInputStream: FileInputStream? = null
-        val imgFile = File("/storage/emulated/0/"+picName)
+        val storageDirectory = Environment.getExternalStorageDirectory().toString()
+        val imgFile = File(storageDirectory,picName)
         if(imgFile.exists()){
              bitmap = BitmapFactory.decodeFile(imgFile.absolutePath)
         }
-
-//        try {
-//            fileInputStream = context.openFileInput("/storage/emulated/0/"+picName)
-//            bitmap = BitmapFactory.decodeStream(fileInputStream)
-//        } catch (e: FileNotFoundException) {
-//            e.printStackTrace()
-//        } catch (e: IOException) {
-//            e.printStackTrace()
-//        } finally {
-//            fileInputStream?.close()
-//        }
-
         return bitmap
     }
 }

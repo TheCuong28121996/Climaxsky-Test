@@ -16,7 +16,6 @@ import com.climaxsky.test.utils.*
 import kotlinx.android.synthetic.main.home_fragment.*
 import org.parceler.Parcels
 
-
 class HomeFragment : BaseFragment() {
 
     private var page: Int = 0
